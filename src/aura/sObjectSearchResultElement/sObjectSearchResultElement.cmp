@@ -1,0 +1,43 @@
+<aura:component controller="SObjectSearchController">
+    <aura:handler name="change" value="{!v.resultDescriptionFields}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.resultDescriptionTypes}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.resultDescriptionLabels}" action="{!c.doInit}"/>
+
+    <aura:attribute name="theRecord" type="sObject" />
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="objectName" type="String" />
+    <aura:attribute name="objectAPIName" type="String" />
+    <aura:attribute name="fieldValueOne" type="String" />
+    <aura:attribute name="fieldValueTwo" type="String" />
+    <aura:attribute name="fieldValueThree" type="String" />
+    <aura:attribute name="labelValueOne" type="String" />
+    <aura:attribute name="labelValueTwo" type="String" />
+    <aura:attribute name="labelValueThree" type="String" />
+    <aura:attribute name="resultDescriptionFieldSetName" type="String" />
+    <aura:attribute name="resultDescriptionFields" type="String[]" />
+    <aura:attribute name="resultDescriptionTypes" type="String[]" />
+    <aura:attribute name="resultDescriptionLabels" type="String[]" />
+    <aura:attribute name="displayThreeFields" type="Boolean" default="true" />
+    <aura:attribute name="displayTwoFields" type="Boolean" default="true" />
+    <aura:attribute name="displayOneField" type="Boolean" default="false" />
+    <aura:attribute name="displayNoFields" type="Boolean" default="false" />
+
+    <force:recordData aura:id="theRecordData"
+                      recordId="{!v.recordId}"
+                      targetRecord="{!v.theRecord}"
+                      recordUpdated="{!c.doInit}"
+                      layoutType="FULL" />
+
+    <aura:if isTrue="{!v.displayThreeFields}">
+        <span class="slds-lookup__result-meta slds-text-body--small" >{!v.labelValueOne}: {!v.fieldValueOne} • {!v.labelValueTwo}: {!v.fieldValueTwo} • {!v.labelValueThree}: {!v.fieldValueThree}</span>
+    </aura:if>
+    <aura:if isTrue="{!v.displayTwoFields}">
+        <span class="slds-lookup__result-meta slds-text-body--small" >{!v.labelValueOne}: {!v.fieldValueOne} • {!v.labelValueTwo}: {!v.fieldValueTwo}</span>
+    </aura:if>
+    <aura:if isTrue="{!v.displayOneField}">
+        <span class="slds-lookup__result-meta slds-text-body--small" >{!v.labelValueOne}: {!v.fieldValueOne}</span>
+    </aura:if>
+    <aura:if isTrue="{!v.displayNoFields}">
+        <span class="slds-lookup__result-meta slds-text-body--small" >{!v.objectName}</span>
+    </aura:if>
+</aura:component>

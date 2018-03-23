@@ -1,0 +1,46 @@
+<aura:component controller="SObjectSearchController" extends="c:helpers">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.fieldSetName}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.recordFieldValue}" action="{!c.doInit}"/>
+
+    <aura:attribute name="theRecord" type="SObject"/>
+    <aura:attribute name="recordField" type="String"/>
+    <aura:attribute name="recordFieldValue" type="String"/>
+    <aura:attribute name="theObjectAPIName" type="String"/>
+    <aura:attribute name="fieldSetName" type="String"/>
+    <aura:attribute name="theObjectLabel" type="String"/>
+    <aura:attribute name="parentId" type="String"/>
+    <aura:attribute name="displayModal" type="Boolean"/>
+    <aura:attribute name="fields" type="Object[]"/>
+    <aura:attribute name="form" type="Aura.Component[]"/>
+    <aura:attribute name="inputToField" type="Map"/>
+    <aura:attribute name="disableSave" type="Boolean" default="false"/>
+
+    <aura:registerEvent name="createdRecord" type="c:recordCreated"/>
+
+    <aura:renderIf isTrue="{!v.displayModal}">
+        <div role="dialog" tabindex="-1" aria-labelledby="headerCreate" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <button class="slds-button slds-modal__close slds-button--icon-inverse" onclick="{!c.closeModal}">
+                        <c:svg ariaHidden="true" class="slds-button__icon slds-button__icon--large" xlinkHref="{!$Resource.SLDSLightningComponents +'/assets/icons/utility-sprite/svg/symbols.svg#close'}"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="headerCreate" class="slds-text-heading--medium">Create&nbsp;{!v.theObjectLabel}</h2>
+                </div>
+                <div class="slds-modal__content slds-p-around--medium">
+                    <div>
+                        <div aura:id="errorMessageComponent"></div>
+                        <div aura:id="pageErrorMessageComponent"></div>
+                            {!v.form}
+                    </div>
+                </div>
+                <div class="slds-modal__footer">
+                    <button data-qa-button="cancel button" class="slds-button slds-button--neutral" onclick="{!c.closeModal}">Cancel</button>
+                    <button data-qa-button="save button" class="slds-button slds-button--neutral slds-button--brand" onclick="{!c.saveRecord}" disabled="{!v.disableSave}">Save</button>
+                </div>
+            </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop--open"></div>
+    </aura:renderIf>
+</aura:component>

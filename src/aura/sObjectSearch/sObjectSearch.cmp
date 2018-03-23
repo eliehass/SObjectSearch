@@ -1,0 +1,160 @@
+<aura:component controller="SObjectSearchController" implements="flexipage:availableForAllPageTypes">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.fieldSetName}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.objectAPIName}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.addRecordTo}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.records}" action="{!c.determineResultVisibility}"/>
+    <aura:handler event="c:recordSelected" action="{!c.hideList}"/>
+    <aura:handler event="c:recordCreated" action="{!c.hideList}"/>
+    <aura:handler event="c:updatePillList" action="{!c.updatePillList}"/>
+
+    <aura:attribute name="defaultRecord" type="Boolean" default="false" />
+    <aura:attribute name="defaultRecordId" type="String" />
+    <aura:attribute name="defaultRecordName" type="String" />
+    <aura:attribute name="recordField" type="String"/>
+    <aura:attribute name="recordFieldValue" type="String"/>
+    <aura:attribute name="records" type="SObject[]" />
+    <aura:attribute name="recordIdList" type="String[]" />
+    <aura:attribute name="theSelectedRecord" type="SObject" />
+    <aura:attribute name="objectName" type="String" />
+    <aura:attribute name="objectPluralName" type="String" />
+    <aura:attribute name="objectAPIName" type="String" />
+    <aura:attribute name="searchFieldAPINameSingle" type="String" />
+    <aura:attribute name="searchFieldAPIName" type="String[]" />
+    <aura:attribute name="searchTermLength" type="Integer" />
+    <aura:attribute name="searchTerm" type="String" />
+    <aura:attribute name="svgRowIcon" type="String" />
+    <aura:attribute name="svgIconType" type="String" default="standard"/>
+    <aura:attribute name="hasFocus" type="Boolean" default="false" />
+    <aura:attribute name="iconClass" type="String" default="slds-icon slds-icon-standard-account slds-icon--small slds-media__figure" />
+    <aura:attribute name="limiters" type="Map" default="{}"/>
+    <aura:attribute name="renderResults" type="Boolean" default="true" />
+    <aura:attribute name="renderRecent" type="Boolean" default="false" />
+    <aura:attribute name="showResultList" type="Boolean" default="false" />
+    <aura:attribute name="createOption" type="Boolean" default="true" />
+    <aura:attribute name="standardCreate" type="Boolean" default="true" />
+    <aura:attribute name="displayModal" type="Boolean" default="false" />
+    <aura:attribute name="parentId" type="String" default="{!v.objectAPIName}"/>
+    <aura:attribute name="fieldSetName" type="String" />
+    <aura:attribute name="resultDescriptionFieldSetName" type="String" />
+    <aura:attribute name="searchFieldsFieldSetName" type="String" />
+    <aura:attribute name="resultDescriptionFields" type="String[]" />
+    <aura:attribute name="resultDescriptionTypes" type="String[]" />
+    <aura:attribute name="resultDescriptionLabels" type="String[]" />
+    <aura:attribute name="recordSelected" type="Boolean" default="false"/>
+    <aura:attribute name="usePills" type="Boolean" default="true"/>
+    <aura:attribute name="addRecord" type="Boolean" default="false"/>
+    <aura:attribute name="addRecordTo" type="String" />
+    <aura:attribute name="pillList" type="Aura.Component[]" />
+    <aura:attribute name="pillListIds" type="String[]" />
+    <aura:attribute name="pillMap" type="Map" default="{}" />
+    <aura:attribute name="multiSelect" type="Boolean" default="false"/>
+    <aura:attribute name="disableEdit" type="Boolean" default="false"/>
+    <aura:attribute name="errorClass" type="String" default=""/>
+    <aura:attribute name="errorMessage" type="String" default=""/>
+
+    <aura:registerEvent name="selectedRecord" type="c:recordSelected"/>
+    <aura:registerEvent name="createdRecord" type="c:recordCreated"/>
+
+    <c:sObjectCreate theObjectAPIName="{!v.objectAPIName}" fieldSetName="{!v.fieldSetName}" theObjectLabel="{!v.objectName}" parentId="{!v.parentId}" displayModal="{!v.displayModal}" recordField="{!v.recordField}" recordFieldValue="{!v.recordFieldValue}"/>
+    <div class="{!'slds-form-element slds-lookup slds-is-open ' + v.errorClass}" data-select="single">
+        <label class="slds-form-element__label" for="searchTextInput">{!v.objectName}</label>
+        <aura:if isTrue="{!v.defaultRecord}">
+            <div class="slds-form-element__control">
+                <div class="slds-pill_container">
+                    <span class="slds-pill slds-size--1-of-1">
+                        <span class="slds-lookup__item-action slds-media slds-media--center" role="option">
+                            <lightning:icon iconName="{!v.svgIconType +':' + v.svgRowIcon}" class="{!v.iconClass}" size="small"/>
+                            <div class="slds-media__body" >
+                                <div class="slds-lookup__result-text slds-wrap slds-truncate" >{!v.defaultRecordName}</div>
+                                <c:sObjectSearchResultElement recordId="{!v.defaultRecordId}" objectName="{!v.objectName}" resultDescriptionFields="{!v.resultDescriptionFields}" resultDescriptionTypes="{!v.resultDescriptionTypes}" resultDescriptionLabels="{!v.resultDescriptionLabels}" objectAPIName="{!v.objectAPIName}" resultDescriptionFieldSetName="{!v.resultDescriptionFieldSetName}"/>
+                            </div>
+                        </span>
+                        <aura:if isTrue="{!!v.disableEdit}">
+                            <button class="slds-button slds-button--icon slds-pill__remove slds-m-right_small slds-p-right_small slds-m-left_small slds-p-left_small" title="Remove" onclick="{!c.removeSelection}">
+                                <lightning:icon iconName="utility:close" class="slds-button__icon" size="small"/>
+                                <span class="slds-assistive-text">Remove</span>
+                            </button>
+                        </aura:if>
+                    </span>
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!!v.defaultRecord}">
+            <aura:if isTrue="{!!v.recordSelected}">
+                <div class="slds-form-element__control">
+                    <div class="slds-input-has-icon slds-input-has-icon--left">
+                        <lightning:icon iconName="utility:search" class="slds-input__icon" size="x-small"/>
+                        <input id="searchTextInput" aria-describedby="error-message" name="search" class="slds-lookup__search-input slds-input" type="search" placeholder="{!'Search' + ' ' + v.objectPluralName}" onkeyup="{!c.searchForRecord}" onfocus="{!c.searchForRecord}" onblur="{!c.hideList}"/>
+                    </div>
+                </div>
+                <div id="error-message" class="slds-form-element__help">{!v.errorMessage}</div>
+            </aura:if>
+            <aura:if isTrue="{!v.recordSelected}">
+                <div class="slds-form-element__control">
+                    <div class="slds-pill_container">
+                        <span class="slds-pill slds-size--1-of-1">
+                            <span class="slds-lookup__item-action slds-media slds-media--center" role="option">
+                                <lightning:icon iconName="{!v.svgIconType +':' + v.svgRowIcon}" class="{!v.iconClass}" size="small"/>
+                                <div class="slds-media__body" >
+                                    <div class="slds-lookup__result-text slds-wrap slds-truncate" >{!v.theSelectedRecord.Name}</div>
+                                    <c:sObjectSearchResultElement recordId="{!v.theSelectedRecord.Id}" objectName="{!v.objectName}" resultDescriptionFields="{!v.resultDescriptionFields}" resultDescriptionTypes="{!v.resultDescriptionTypes}" resultDescriptionLabels="{!v.resultDescriptionLabels}" objectAPIName="{!v.objectAPIName}" resultDescriptionFieldSetName="{!v.resultDescriptionFieldSetName}"/>
+                                </div>
+                            </span>
+                            <button class="slds-button slds-button--icon slds-pill__remove slds-m-right_small slds-p-right_small slds-m-left_small slds-p-left_small" title="Remove" onclick="{!c.removeSelection}">
+                                <lightning:icon iconName="utility:close" class="slds-button__icon" size="small"/>
+                                <span class="slds-assistive-text">Remove</span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </aura:if>
+        </aura:if>
+        <div data-qa-input="result list">
+            <aura:if isTrue="{!v.showResultList}">
+                <div class="slds-lookup__menu" id="searchTextInput">
+                    <ul class="slds-lookup__list" role="listbox">
+                        <aura:If isTrue="{!v.renderResults}">
+                            <div data-qa-input="auto-complete">
+                                <aura:iteration items="{!v.records}" var="theRecord">
+                                    <li role="presentation" id="{!theRecord.Id}"  onmousedown="{!c.selectRecord}">
+                                        <span class="slds-lookup__item-action slds-media slds-media--center" role="option">
+                                            <lightning:icon iconName="{!v.svgIconType +':' + v.svgRowIcon}" class="{!v.iconClass}" size="small"/>
+                                            <div class="slds-media__body" >
+                                                <div class="slds-lookup__result-text" >{!theRecord.Name}</div>
+                                                <c:sObjectSearchResultElement recordId="{!theRecord.Id}" objectName="{!v.objectName}" resultDescriptionFields="{!v.resultDescriptionFields}" resultDescriptionTypes="{!v.resultDescriptionTypes}" resultDescriptionLabels="{!v.resultDescriptionLabels}" objectAPIName="{!v.objectAPIName}" resultDescriptionFieldSetName="{!v.resultDescriptionFieldSetName}"/>
+                                            </div>
+                                        </span>
+                                    </li>
+                                </aura:iteration>
+                            </div>
+                        </aura:If>
+                        <aura:if isTrue="{!v.createOption}">
+                            <aura:if isTrue="{!v.standardCreate}">
+                                <li role="presentation" onmousedown="{!c.createRecord}">
+                                    <span class="slds-lookup__item-action slds-lookup__item-action--label" id="createOption" role="option">
+                                        <lightning:icon iconName="utility:add" class="slds-icon slds-icon--x-small slds-icon-text-default" size="x-small"/>
+                                        <span class="slds-truncate">New&nbsp;{!v.objectName}</span>
+                                    </span>
+                                </li>
+                            </aura:if>
+                            <aura:if isTrue="{!!v.standardCreate}">
+                                <li role="presentation" onmousedown="{!c.createRecordCustom}">
+                                    <span class="slds-lookup__item-action slds-lookup__item-action--label" id="createOption" role="option">
+                                        <lightning:icon iconName="utility:add" class="slds-icon slds-icon--x-small slds-icon-text-default" size="x-small"/>
+                                        <span class="slds-truncate">New&nbsp;{!v.objectName}</span>
+                                    </span>
+                                </li>
+                            </aura:if>
+                        </aura:if>
+                    </ul>
+                </div>
+            </aura:if>
+        </div>
+    </div>
+    <aura:if isTrue="{!v.multiSelect}">
+        <aura:iteration items="{!v.pillList}" var="thePill">
+                {!thePill}
+        </aura:iteration>
+    </aura:if>
+</aura:component>

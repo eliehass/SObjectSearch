@@ -1,0 +1,11 @@
+<design:component >
+    <design:attribute name="objectName" label="Object Name" description="The name of the Object being searched on." />
+    <design:attribute name="objectAPIName" label="Object API Name" description="The API name of the Object being searched on." />
+    <design:attribute name="objectPluralName" label="Object Plural Name" description="The plural name of the Object being searched on." />
+    <design:attribute name="createOption" label="Create new records?" description="Determines if the component should give users the ability to create a new record if what they are searching for doesn't exist." />
+    <design:attribute name="searchFieldAPINameSingle" label="Search Field" description="The API name of the field to be searched on." />
+    <design:attribute name="resultDescriptionFieldSetName" label="Result Description Field Set" description="The API name of the field set which defines the description fields." />
+    <design:attribute name="addRecord" label="Add to List" description="Should the search add selected record to a list?" />
+    <design:attribute name="addRecordTo" label="Add to which list" description="If adding to a list, enter the list name here." />
+    <design:attribute name="multiSelect" label="Select Multiple Records" description="Select multiple records in one group." />
+</design:component>
